@@ -16,11 +16,11 @@
 
 package org.springframework.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.springframework.beans.BeansException;
 import org.springframework.core.ResolvableType;
+
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 /**
  * Extension of the {@link BeanFactory} interface to be implemented by bean factories
@@ -47,7 +47,7 @@ import org.springframework.core.ResolvableType;
  * <p><b>NOTE:</b> With the exception of {@code getBeanDefinitionCount}
  * and {@code containsBeanDefinition}, the methods in this interface
  * are not designed for frequent invocation. Implementations may be slow.
- *
+ * BeanFactory的扩展，可列举出工厂所有的Bean实例。
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 16 April 2001
@@ -64,6 +64,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * @param beanName the name of the bean to look for
 	 * @return if this bean factory contains a bean definition with the given name
 	 * @see #containsBean
+	 * 对于给定的名字是否含有BeanDefinition
 	 */
 	boolean containsBeanDefinition(String beanName);
 
@@ -73,6 +74,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * and ignores any singleton beans that have been registered by
 	 * other means than bean definitions.
 	 * @return the number of beans defined in the factory
+	 * 返回工厂的BeanDefinition总数
 	 */
 	int getBeanDefinitionCount();
 
@@ -83,6 +85,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * other means than bean definitions.
 	 * @return the names of all beans defined in this factory,
 	 * or an empty array if none defined
+	 *  返回工厂中所有Bean的名字
 	 */
 	String[] getBeanDefinitionNames();
 
@@ -112,6 +115,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * @see #isTypeMatch(String, ResolvableType)
 	 * @see FactoryBean#getObjectType
 	 * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(ListableBeanFactory, ResolvableType)
+	 * 返回对于指定类型Bean（包括子类）的所有名字
 	 */
 	String[] getBeanNamesForType(ResolvableType type);
 
@@ -139,6 +143,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * the given object type (including subclasses), or an empty array if none
 	 * @see FactoryBean#getObjectType
 	 * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(ListableBeanFactory, Class)
+	 * 返回对于指定类型Bean（包括子类）的所有名字
 	 */
 	String[] getBeanNamesForType(Class<?> type);
 
@@ -172,6 +177,8 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * the given object type (including subclasses), or an empty array if none
 	 * @see FactoryBean#getObjectType
 	 * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(ListableBeanFactory, Class, boolean, boolean)
+	 *  返回指定类型的名字 includeNonSingletons为false表示只取单例Bean，true则不是
+	 * allowEagerInit为true表示立刻加载，false表示延迟加载。 注意：FactoryBeans都是立刻加载的。
 	 */
 	String[] getBeanNamesForType(Class<?> type, boolean includeNonSingletons, boolean allowEagerInit);
 
@@ -202,6 +209,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * @since 1.1.2
 	 * @see FactoryBean#getObjectType
 	 * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(ListableBeanFactory, Class)
+	 * 根据类型（包括子类）返回指定Bean名和Bean的Map
 	 */
 	<T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException;
 
@@ -247,6 +255,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * @param annotationType the type of annotation to look for
 	 * @return the names of all matching beans
 	 * @since 4.0
+	 * 查找所有指定注解的Bean名
 	 */
 	String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType);
 
@@ -258,6 +267,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * keys and the corresponding bean instances as values
 	 * @throws BeansException if a bean could not be created
 	 * @since 3.0
+	 *  根据注解类型，查找所有有这个注解的Bean名和Bean的Map
 	 */
 	Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) throws BeansException;
 
@@ -270,6 +280,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * @return the annotation of the given type if found, or {@code null}
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name
 	 * @since 3.0
+	 * 查找指定bean名，注解类的注解 （反转）
 	 */
 	<A extends Annotation> A findAnnotationOnBean(String beanName, Class<A> annotationType)
 			throws NoSuchBeanDefinitionException;

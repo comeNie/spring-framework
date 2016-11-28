@@ -55,6 +55,7 @@ import org.springframework.beans.factory.BeanFactory;
  * @see org.springframework.beans.factory.BeanFactoryAware
  * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
  * @see org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()
+ * 自动装配的Bean工厂，工厂接口继承自BeanFacotory，它扩展了自动装配的功能，根据类定义BeanDefinition装配Bean、执行前、后处理器等
  */
 public interface AutowireCapableBeanFactory extends BeanFactory {
 
@@ -64,6 +65,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #createBean
 	 * @see #autowire
 	 * @see #autowireBeanProperties
+	 * 无自动装配
 	 */
 	int AUTOWIRE_NO = 0;
 
@@ -73,6 +75,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #createBean
 	 * @see #autowire
 	 * @see #autowireBeanProperties
+	 * 根据Bean的名称装配
 	 */
 	int AUTOWIRE_BY_NAME = 1;
 
@@ -82,6 +85,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #createBean
 	 * @see #autowire
 	 * @see #autowireBeanProperties
+	 * 根据类型自动装配
 	 */
 	int AUTOWIRE_BY_TYPE = 2;
 
@@ -90,6 +94,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * can be satisfied (involves resolving the appropriate constructor).
 	 * @see #createBean
 	 * @see #autowire
+	 * 根据构造方法自动装配
 	 */
 	int AUTOWIRE_CONSTRUCTOR = 3;
 
@@ -120,6 +125,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @param beanClass the class of the bean to create
 	 * @return the new bean instance
 	 * @throws BeansException if instantiation or wiring failed
+	 *  根据指定Class创建一个全新的Bean实例
 	 */
 	<T> T createBean(Class<T> beanClass) throws BeansException;
 
@@ -132,6 +138,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * use {@link #autowireBeanProperties} for those purposes.
 	 * @param existingBean the existing bean instance
 	 * @throws BeansException if wiring failed
+	 * 给定对象，根据注释、后处理器等，进行自动装配
 	 */
 	void autowireBean(Object existingBean) throws BeansException;
 
@@ -151,6 +158,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * if there is no bean definition with the given name
 	 * @throws BeansException if the initialization failed
 	 * @see #initializeBean
+	 * 根据Bean名的BeanDefinition装配这个未加工的Object，执行回调和各种后处理器。
 	 */
 	Object configureBean(Object existingBean, String beanName) throws BeansException;
 
@@ -160,6 +168,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @param beanName the name of the bean which declares the present dependency
 	 * @return the resolved object, or {@code null} if none found
 	 * @throws BeansException if dependency resolution failed
+	 *  分解Bean在工厂中定义的这个指定的依赖descriptor
 	 */
 	Object resolveDependency(DependencyDescriptor descriptor, String beanName) throws BeansException;
 
@@ -184,6 +193,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #AUTOWIRE_BY_NAME
 	 * @see #AUTOWIRE_BY_TYPE
 	 * @see #AUTOWIRE_CONSTRUCTOR
+	 *  根据给定的类型和指定的装配策略，创建一个新的Bean实例
 	 */
 	Object createBean(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
 
@@ -232,6 +242,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #AUTOWIRE_BY_NAME
 	 * @see #AUTOWIRE_BY_TYPE
 	 * @see #AUTOWIRE_NO
+	 * 根据名称或类型自动装配
 	 */
 	void autowireBeanProperties(Object existingBean, int autowireMode, boolean dependencyCheck)
 			throws BeansException;
@@ -273,6 +284,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * (only passed to {@link BeanPostProcessor BeanPostProcessors})
 	 * @return the bean instance to use, either the original or a wrapped one
 	 * @throws BeansException if the initialization failed
+	 * 初始化一个Bean...
 	 */
 	Object initializeBean(Object existingBean, String beanName) throws BeansException;
 
@@ -285,6 +297,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @return the bean instance to use, either the original or a wrapped one
 	 * @throws BeansException if any post-processing failed
 	 * @see BeanPostProcessor#postProcessBeforeInitialization
+	 * 初始化之前执行BeanPostProcessors
 	 */
 	Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
 			throws BeansException;
@@ -298,6 +311,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @return the bean instance to use, either the original or a wrapped one
 	 * @throws BeansException if any post-processing failed
 	 * @see BeanPostProcessor#postProcessAfterInitialization
+	 * 初始化之后执行BeanPostProcessors
 	 */
 	Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
 			throws BeansException;
@@ -322,6 +336,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * collections
 	 * @return the resolved object, or {@code null} if none found
 	 * @throws BeansException if dependency resolution failed
+	 * 分解指定的依赖
 	 */
 	Object resolveDependency(DependencyDescriptor descriptor, String beanName,
 			Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException;

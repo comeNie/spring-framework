@@ -37,16 +37,24 @@ import org.springframework.util.StringValueResolver;
  */
 public class SimpleAliasRegistry implements AliasRegistry {
 
-	/** Map from alias to canonical name */
+	/** Map from alias to canonical name
+	 *
+	 * 用一个支持高并发的ConcurrentHashMap来放置所有的别名
+	 * */
 	private final Map<String, String> aliasMap = new ConcurrentHashMap<String, String>(16);
 
 
+	/**
+	 * AliasRegistry的接口方法，注册别名。不允许重复注册。 alias为key. name为value
+	 * @param name the canonical name
+	 * @param alias the alias to be registered
+     */
 	@Override
 	public void registerAlias(String name, String alias) {
 		Assert.hasText(name, "'name' must not be empty");
 		Assert.hasText(alias, "'alias' must not be empty");
 		if (alias.equals(name)) {
-			this.aliasMap.remove(alias);
+			this.aliasMap.remove(alias); // 去除相同的别名与名称
 		}
 		else {
 			String registeredName = this.aliasMap.get(alias);
@@ -55,13 +63,14 @@ public class SimpleAliasRegistry implements AliasRegistry {
 					// An existing alias - no need to re-register
 					return;
 				}
+				// 判断是否允许别名覆盖
 				if (!allowAliasOverriding()) {
 					throw new IllegalStateException("Cannot register alias '" + alias + "' for name '" +
 							name + "': It is already registered for name '" + registeredName + "'.");
 				}
 			}
-			checkForAliasCircle(name, alias);
-			this.aliasMap.put(alias, name);
+			checkForAliasCircle(name, alias);  // 检测别名依赖。 不能出现 A-->B   B-->A
+			this.aliasMap.put(alias, name);  // alias是key,name是value。 保存别名依赖
 		}
 	}
 
@@ -78,6 +87,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * @param name the name to check
 	 * @param alias the alias to look for
 	 * @since 4.2.1
+	 * 查找别名依赖
 	 */
 	public boolean hasAlias(String name, String alias) {
 		for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
@@ -91,6 +101,9 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	}
 
 	@Override
+	/**
+	 * 去除别名
+	 */
 	public void removeAlias(String alias) {
 		String name = this.aliasMap.remove(alias);
 		if (name == null) {
@@ -99,10 +112,18 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	}
 
 	@Override
+	/**
+	 * 存在别名
+	 */
 	public boolean isAlias(String name) {
 		return this.aliasMap.containsKey(name);
 	}
 
+	/**
+	 * 获取所有的别名，制定名称
+	 * @param name the name to check for aliases
+	 * @return
+     */
 	@Override
 	public String[] getAliases(String name) {
 		List<String> result = new ArrayList<String>();
@@ -116,6 +137,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * Transitively retrieve all aliases for the given name.
 	 * @param name the target name to find aliases for
 	 * @param result the resulting aliases list
+	 * 反转aliasMap。  返回指定名称的所有别名。包括依赖的。
 	 */
 	private void retrieveAliases(String name, List<String> result) {
 		for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
@@ -134,6 +156,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * <p>The value resolver may for example resolve placeholders
 	 * in target bean names and even in alias names.
 	 * @param valueResolver the StringValueResolver to apply
+	 * 处理所有的别名，如果处理正确，把原来的用解析后的替换
 	 */
 	public void resolveAliases(StringValueResolver valueResolver) {
 		Assert.notNull(valueResolver, "StringValueResolver must not be null");

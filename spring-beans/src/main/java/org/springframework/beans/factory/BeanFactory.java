@@ -112,10 +112,15 @@ public interface BeanFactory {
 	 * beans <i>created</i> by the FactoryBean. For example, if the bean named
 	 * {@code myJndiObject} is a FactoryBean, getting {@code &myJndiObject}
 	 * will return the factory, not the instance returned by the factory.
+	 *
+	 * 用来引用一个实例，或把它和工厂产生的Bean区分开，就是说，如果一个FactoryBean的名字为a，那么，&a会得到那个Factory
+	 *
 	 */
 	String FACTORY_BEAN_PREFIX = "&";
 
-
+	/**
+	 * 不同事形式的获取Bean方法
+	 */
 	/**
 	 * Return an instance, which may be shared or independent, of the specified bean.
 	 * <p>This method allows a Spring BeanFactory to be used as a replacement for the
@@ -205,7 +210,9 @@ public interface BeanFactory {
 	 */
 	<T> T getBean(Class<T> requiredType, Object... args) throws BeansException;
 
-
+	/**
+	 * 是否存在Bean
+	 */
 	/**
 	 * Does this bean factory contain a bean definition or externally registered singleton
 	 * instance with the given name?
@@ -222,7 +229,9 @@ public interface BeanFactory {
 	 * @return whether a bean with the given name is present
 	 */
 	boolean containsBean(String name);
-
+	/**
+	 * 判断Bean的作用域是否为singleton
+	 */
 	/**
 	 * Is this bean a shared singleton? That is, will {@link #getBean} always
 	 * return the same instance?
@@ -241,6 +250,9 @@ public interface BeanFactory {
 	boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
 	/**
+	 * 判断Bean的作用域是否为Prototype
+	 */
+	/**
 	 * Is this bean a prototype? That is, will {@link #getBean} always return
 	 * independent instances?
 	 * <p>Note: This method returning {@code false} does not clearly indicate
@@ -258,6 +270,9 @@ public interface BeanFactory {
 	 */
 	boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 
+	/**
+	 * Bean的名称，类型是否匹配
+	 */
 	/**
 	 * Check whether the bean with the given name matches the specified type.
 	 * More specifically, check whether a {@link #getBean} call for the given name
@@ -293,6 +308,9 @@ public interface BeanFactory {
 	boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException;
 
 	/**
+	 * 获取Bean的类型
+	 */
+	/**
 	 * Determine the type of the bean with the given name. More specifically,
 	 * determine the type of object that {@link #getBean} would return for the given name.
 	 * <p>For a {@link FactoryBean}, return the type of object that the FactoryBean creates,
@@ -308,6 +326,9 @@ public interface BeanFactory {
 	 */
 	Class<?> getType(String name) throws NoSuchBeanDefinitionException;
 
+	/**
+	 * 获取Bean的类型
+	 */
 	/**
 	 * Return the aliases for the given bean name, if any.
 	 * All of those aliases point to the same bean when used in a {@link #getBean} call.
