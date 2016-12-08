@@ -16,16 +16,16 @@
 
 package org.springframework.beans.factory.support;
 
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.util.Assert;
+
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A root bean definition represents the merged bean definition that backs

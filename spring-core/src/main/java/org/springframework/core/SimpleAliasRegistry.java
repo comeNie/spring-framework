@@ -214,18 +214,20 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * Determine the raw name, resolving aliases to canonical names.
 	 * @param name the user-specified name
 	 * @return the transformed name
+	 * 根据name这个Key，在aliasMap中不断循环的取对应的value，如果取得到，就继续根据这个value取值，不断循环继续。
+	 * 直到取不到，就把这个在aliasMap中无对应值的key返回。这个动作，叫规范名
 	 */
 	public String canonicalName(String name) {
-		String canonicalName = name;
+		String canonicalName = name; //规范名
 		// Handle aliasing...
-		String resolvedName;
+		String resolvedName; //已解析名
 		do {
-			resolvedName = this.aliasMap.get(canonicalName);
-			if (resolvedName != null) {
-				canonicalName = resolvedName;
+			resolvedName = this.aliasMap.get(canonicalName); //aliasMap中规范名对应的值赋值给已解析名
+			if (resolvedName != null) { //如果已解析名存在（即规范名在aliasMap中有对应的值）
+				canonicalName = resolvedName; // 这个已解析名赋值给标准名
 			}
 		}
-		while (resolvedName != null);
+		while (resolvedName != null); //不断循环，直到已解析名不存在
 		return canonicalName;
 	}
 
