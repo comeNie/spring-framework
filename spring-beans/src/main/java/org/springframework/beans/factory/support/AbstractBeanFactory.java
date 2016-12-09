@@ -244,6 +244,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 		// Eagerly check singleton cache for manually registered singletons.
 		//懒检查单例缓存（手动注册单利类）
+		//这里判断是否已经存在这个bean信息，如果已经存在，那么直接拿过来就可以了。
+		// 不需要再次进行创建。这里传递的参数为true，
+		// 表示将会在临时存储singletonFactories中寻找对象，并将对象放入临时对象earlySingletonObjects中。
 		Object sharedInstance = getSingleton(beanName);  //从单例缓存工厂取
 		if (sharedInstance != null && args == null) {
 			if (logger.isDebugEnabled()) {
@@ -268,8 +271,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			// Check if bean definition exists in this factory.
-			//取本容器的父容器
+			//取本容器的父容器  尝试从父容器中寻找，这一点和classLoader的父子加载机制相同
 			BeanFactory parentBeanFactory = getParentBeanFactory();
+			//注意这里首先进行了判断，父容器不能为null，其次在当前容器中不存在这个bean。如果当前容器存在的话（通过containsBeanDefinition判断），则直接从当前容器取。
+			// 这两个判断，表明了当前容器肯定不存在指定的bean，那么只能从父容器取了，
+			// 如果父容器再取不到，那么就肯定没有要创建的bean了，报异常吧。
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {  //若存在父容器，且本容器不存在对应的Bean定义
 				// Not found -> check parent.
 				String nameToLookup = originalBeanName(name);  //取原始的Bean名
@@ -285,16 +291,29 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 			//如果不需要类型检查，标记其已经被创建
+			//进行创建标记，以避免重复创建，并且后续会使用此标记信息，同时标记这个bean已经被创建了，即已经被getBean至少调用过一次了
 			if (!typeCheckOnly) {
 				markBeanAsCreated(beanName);
 			}
 
 			try {
 				//根据beanName取其根Bean定义
+				//开始寻找bean定义信息，并针对bean定义进行验证.
+				//这里会对bean信息进行一个封装，主要是处理parent信息和scope信息。
+				// 将这些信息进行一次定义融合。同时接下来对bean进行检查，首先这个bean不能是abstract的，
+				// 因为abstract的bean定义不能被实例化，只能由其它bean继承。
+				// 然后，在传递的参数不为null的情况下，要求只能处理prototype类型的bean。
+				// 因为，如果不是prototype，无需传递参数，因为bean已经在第一次创建时确定，后续获取不能够改变原有bean信息。
+				// 除了prototype类型才可以，后者为每一次请求都会创建新的对象。
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
+				//处理依赖信息，这里会针对xml定义中的depends-on进行处理
+				//这里会触发对dependOn bean的创建。如A->B，表示A依赖于B，那么在创建A之前，必须保证B先被创建。
+				//在创建了B之后，这里会进行依赖信息存储。信息会存储于两个地方，一是dependentBeanMap，
+				// 存储为B-A，表示B被A依赖。另一个是dependenciesForBeanMap，
+				// 存储为A－B，表示A依赖于B。这相当于是一个双向map，只不过通过两个map来存储。
 				String[] dependsOn = mbd.getDependsOn(); //得到这个根定义的所有依赖
 				if (dependsOn != null) {
 					for (String dependsOnBean : dependsOn) {
@@ -310,6 +329,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Create bean instance.
 				// 如果Bean定义是单例，就在返回单例
 				if (mbd.isSingleton()) {
+					// 调用getSingleton(String beanName, ObjectFactory singletonFactory)，
+					// 最终会触发objectFactory的getObject方法，即调用createBean(beanName, mbd, args)方法进行bean创建。
 					sharedInstance = getSingleton(beanName, new ObjectFactory<Object>() {
 						@Override
 						public Object getObject() throws BeansException {
@@ -1139,6 +1160,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @link org.springframework.core.SimpleAliasRegistry
 	 */
 	protected String transformedBeanName(String name) {
+		/*
+		* 转化有两个步骤，首先处理beanName为&XXX的格式，这里表示要取指定name的factoryBean。
+		* 在这里先把&符号取消，先获取bean再处理。然后，针对bean的alias机制，这里传入的参数可能是一个bean别名，
+		* 那么我们先获取这个bean的主要id，只需要根据id值取bean就可以了。
+		*/
 		return canonicalName(BeanFactoryUtils.transformedBeanName(name));
 	}
 
@@ -1427,7 +1453,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 	}
 
-	// 真正的解析类型
+	// 解析beanDefinition，以确保bean定义中的class可以被正确解析
 	private Class<?> doResolveBeanClass(RootBeanDefinition mbd, Class<?>... typesToMatch) throws ClassNotFoundException {
 		ClassLoader beanClassLoader = getBeanClassLoader();
 		ClassLoader classLoaderToUse = beanClassLoader;

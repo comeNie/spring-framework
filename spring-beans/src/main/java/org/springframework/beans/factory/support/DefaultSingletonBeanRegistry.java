@@ -84,10 +84,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**单例缓存 Cache of singleton objects: bean name --> bean instance */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<String, Object>(256);
 
-	/**单利工厂缓存 Cache of singleton factories: bean name --> ObjectFactory */
+	/**单利工厂缓存 Cache of singleton factories: bean name --> ObjectFactory
+	 * 用于存储在spring内部所使用的beanName->对象工厂的引用，一旦最终对象被创建(通过objectFactory.getObject())，此引用信息将删除
+	 * */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<String, ObjectFactory<?>>(16);
 
-	/**早期单例对象缓存: bean name --> bean instance  Cache of early singleton objects: bean name --> bean instance */
+	/**早期单例对象缓存: bean name --> bean instance  Cache of early singleton objects: bean name --> bean instance
+	 * 用于存储在创建Bean早期对创建的原始bean的一个引用，注意这里是原始bean，即使用工厂方法或构造方法创建出来的对象，一旦对象最终创建好，此引用信息将删除
+	 * */
 	private final Map<String, Object> earlySingletonObjects = new HashMap<String, Object>(16);
 
 	/** 注册过的单例类（单例工厂） Set of registered singletons, containing the bean names in registration order */
@@ -139,11 +143,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	}
 
 	/**
-	 * 注册一个单例类，注册之后，从singletonFactories、earlySingletonObjects中删去
+	 * 注册一个单例类，注册之后，从singletonFactories、earlySingletonObjects中删去。 循环依赖
+	 * 对象被加入到singletonObjects中，同时singletonFactories和earlySingletonObjects中都remove掉持有的对象（不管持有与否），
+	 * 这就表示在之前的处理中，这只相当于一个临时容器，处理完毕之后都会remove掉
 	 * Add the given singleton object to the singleton cache of this factory.
 	 * <p>To be called for eager registration of singletons.
 	 * @param beanName the name of the bean
 	 * @param singletonObject the singleton object
+	 * method3
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
 		synchronized (this.singletonObjects) {
@@ -161,7 +168,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * resolve circular references.
 	 * @param beanName the name of the bean
 	 * @param singletonFactory the factory for the singleton object
-	 * 注册一个单例工厂类，注册后从earlySingletonObjects移除
+	 * 注册一个单例工厂类，注册后从earlySingletonObjects移除. 解决循环依赖
+	 *
+	 * 对象信息对beanFactory的形式被放入singletonFactories中，这时earlySingletonObjects中肯定没有此对象(因为remove)。
+	 * method1
 	 */
 	protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
@@ -180,15 +190,24 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	}
 
 	/**
-	 * 根据beanName返回单例类
+	 * 根据beanName返回单例类， 解决循环依赖
 	 * Return the (raw) singleton object registered under the given name.
 	 * <p>Checks already instantiated singletons and also allows for an early
 	 * reference to a currently created singleton (resolving a circular reference).
 	 * @param beanName the name of the bean to look for
 	 * @param allowEarlyReference whether early references should be created or not
 	 * @return the registered singleton object, or {@code null} if none found
+	 *
+	 * 在一定条件下（allowEarlyReference为true）的条件下，对象从singleFactories中的objectFactory中被取出来，
+	 * 同时remove掉，被放入earlySingletonObjects中。这时,earlySingletonObjects就持有对象信息了；
+	 * 当然，如果allowEarlyReference为false的情况下，
+	 * 且earlySingletonObjects本身就没有持有对象的情况下
+	 * ，肯定不会将对象从objectFactory中取出来的。
+	 * 这个很重要，因为后面将根据此信息进行循环引用处理
+	 * method2
 	 */
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		//首先执行getObject方法，再执行finnaly中的addSingleton方法，即上文中的方法3
 		Object singletonObject = this.singletonObjects.get(beanName);  //缓存工厂取Bean
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) { //如果取不到，且该bean正在创建
 			synchronized (this.singletonObjects) {
@@ -218,6 +237,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "'beanName' must not be null");
 		synchronized (this.singletonObjects) {
+			//首先执行getObject方法，再执行finnaly中的addSingleton方法，即上文中的method3
 			Object singletonObject = this.singletonObjects.get(beanName);     //从单例缓存中获取
 			if (singletonObject == null) {
 				if (this.singletonsCurrentlyInDestruction) {   // 当前Bean是否在销毁中

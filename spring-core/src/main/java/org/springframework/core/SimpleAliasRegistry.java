@@ -217,6 +217,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * 根据name这个Key，在aliasMap中不断循环的取对应的value，如果取得到，就继续根据这个value取值，不断循环继续。
 	 * 直到取不到，就把这个在aliasMap中无对应值的key返回。这个动作，叫规范名
 	 */
+
 	public String canonicalName(String name) {
 		String canonicalName = name; //规范名
 		// Handle aliasing...
