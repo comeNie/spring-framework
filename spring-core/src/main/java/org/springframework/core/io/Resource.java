@@ -47,21 +47,21 @@ import java.net.URL;
 public interface Resource extends InputStreamSource {
 
 	/**
-	 * Determine whether this resource actually exists in physical form.
-	 * <p>This method performs a definitive existence check, whereas the
-	 * existence of a {@code Resource} handle only guarantees a valid
+	 * determine whether this resource actually exists in physical form.
+	 * <p>this method performs a definitive existence check, whereas the
+	 * existence of a {@code resource} handle only guarantees a valid
 	 * descriptor handle.
 	 */
 	boolean exists();
 
 	/**
-	 * Indicate whether the contents of this resource can be read via
-	 * {@link #getInputStream()}.
-	 * <p>Will be {@code true} for typical resource descriptors;
+	 * indicate whether the contents of this resource can be read via
+	 * {@link #getinputstream()}.
+	 * <p>will be {@code true} for typical resource descriptors;
 	 * note that actual content reading may still fail when attempted.
-	 * However, a value of {@code false} is a definitive indication
+	 * however, a value of {@code false} is a definitive indication
 	 * that the resource content cannot be read.
-	 * @see #getInputStream()
+	 * @see #getinputstream()
 	 */
 	boolean isReadable();
 

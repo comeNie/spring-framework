@@ -75,6 +75,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
 
 	/**
+	 * 创建一个类路径Bean定义扫描器
 	 * Create a new {@code ClassPathBeanDefinitionScanner} for the given bean factory.
 	 * @param registry the {@code BeanFactory} to load bean definitions into, in the form
 	 * of a {@code BeanDefinitionRegistry}
@@ -106,6 +107,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * {@link org.springframework.stereotype.Controller @Controller} stereotype annotations
 	 * @see #setResourceLoader
 	 * @see #setEnvironment
+	 * //为容器创建一个类路径Bean定义扫描器，并指定是否使用默认的扫描过滤规则。
+	 * 即Spring默认扫描配置：@Component、@Repository、@Service、@Controller
+	 * 注解的Bean，同时也支持JavaEE6的@ManagedBean和JSR-330的@Named注解
 	 */
 	public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry, boolean useDefaultFilters) {
 		this(registry, useDefaultFilters, getOrCreateEnvironment(registry));
@@ -131,14 +135,18 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * definition profile metadata
 	 * @since 3.1
 	 * @see #setResourceLoader
+	 *
 	 */
 	public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry, boolean useDefaultFilters, Environment environment) {
+		//调用父类ClassPathScanningCandidateComponentProvider构造方法设置过滤规则
 		super(useDefaultFilters, environment);
 
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+		//为容器设置加载Bean定义的注册器
 		this.registry = registry;
 
 		// Determine ResourceLoader to use.
+		// //如果注册器是资源加载器，则为容器设置资源加载器
 		if (this.registry instanceof ResourceLoader) {
 			setResourceLoader((ResourceLoader) this.registry);
 		}
@@ -219,8 +227,10 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * Perform a scan within the specified base packages.
 	 * @param basePackages the packages to check for annotated classes
 	 * @return number of beans registered
+	 * //类路径Bean定义扫描器扫描给定包及其子包
 	 */
 	public int scan(String... basePackages) {
+		//获取容器中已经注册的Bean个数
 		int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
 
 		doScan(basePackages);
@@ -243,8 +253,10 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 */
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
+		//创建一个集合，存放扫描到Bean定义的封装类
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<BeanDefinitionHolder>();
 		for (String basePackage : basePackages) {
+			//
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);

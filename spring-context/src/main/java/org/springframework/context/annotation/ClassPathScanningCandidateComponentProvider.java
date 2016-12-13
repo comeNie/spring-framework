@@ -276,8 +276,11 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				}
 				if (resource.isReadable()) {
 					try {
+						// 通过ASM创建元数据reader
 						MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);
+						////根据reader判断是否BeanDefinition
 						if (isCandidateComponent(metadataReader)) {
+							//这里创建了ScannedGenericBeanDefinition
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setResource(resource);
 							sbd.setSource(resource);
