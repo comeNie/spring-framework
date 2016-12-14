@@ -16,10 +16,10 @@
 
 package org.springframework.aop.framework;
 
+import org.springframework.aop.SpringProxy;
+
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
-
-import org.springframework.aop.SpringProxy;
 
 /**
  * Default {@link AopProxyFactory} implementation, creating either a CGLIB proxy
@@ -28,9 +28,9 @@ import org.springframework.aop.SpringProxy;
  * <p>Creates a CGLIB proxy if one the following is true for a given
  * {@link AdvisedSupport} instance:
  * <ul>
- * <li>the {@code optimize} flag is set
- * <li>the {@code proxyTargetClass} flag is set
- * <li>no proxy interfaces have been specified
+ * <li>the {@code optimize} flag is set  //优化开关开启
+ * <li>the {@code proxyTargetClass} flag is set   // proxyTargetClass 开启
+ * <li>no proxy interfaces have been specified   // 没有指定代理接口
  * </ul>
  *
  * <p>In general, specify {@code proxyTargetClass} to enforce a CGLIB proxy,

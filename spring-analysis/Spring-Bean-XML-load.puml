@@ -1,0 +1,40 @@
+@startuml
+activate XMLBeanDefinitionReader
+XMLBeanDefinitionReader->InputSource:1.new InputResource()
+activate InputSource
+InputSource --> XMLBeanDefinitionReader
+deactivate InputSource
+
+XMLBeanDefinitionReader->XMLBeanDefinitionReader:2.registerBeanDefinitions()
+activate XMLBeanDefinitionReader
+deactivate XMLBeanDefinitionReader
+XMLBeanDefinitionReader->BeanDefinitionDocumentReader:3.createBeanDefinitionDocumentReader()
+activate BeanDefinitionDocumentReader
+BeanDefinitionDocumentReader-->XMLBeanDefinitionReader
+deactivate BeanDefinitionDocumentReader
+
+
+XMLBeanDefinitionReader->XmlReaderContext:createReaderContext()
+activate  XmlReaderContext
+XMLBeanDefinitionReader->DefaultNamespaceHandlerResolver:createDefaultNamespaceHandlerResolver()
+DefaultNamespaceHandlerResolver-->XmlReaderContext
+XmlReaderContext-->XMLBeanDefinitionReader
+deactivate XmlReaderContext
+
+
+
+BeanDefinitionDocumentReader->BeanDefinitionParserDelegate:createDelegate()
+activate BeanDefinitionDocumentReader
+activate BeanDefinitionParserDelegate
+BeanDefinitionParserDelegate-->BeanDefinitionDocumentReader
+deactivate BeanDefinitionParserDelegate
+
+BeanDefinitionDocumentReader-> BeanDefinitionReaderUtils:BeanDefinitionReaderUtils.registerBeanDefinition()
+activate BeanDefinitionReaderUtils
+BeanDefinitionReaderUtils->BeanDefinitionRegistry:registerBeanDefinition
+BeanDefinitionRegistry-->BeanDefinitionReaderUtils
+
+BeanDefinitionReaderUtils-->BeanDefinitionDocumentReader
+deactivate BeanDefinitionReaderUtils
+deactivate BeanDefinitionDocumentReader
+@enduml
