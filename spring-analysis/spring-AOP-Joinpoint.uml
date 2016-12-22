@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.aopalliance.intercept.Joinpoint</OriginalElement>
+  <nodes>
+    <node x="138.5" y="0.0">org.aopalliance.intercept.Joinpoint</node>
+    <node x="185.5" y="160.0">org.aopalliance.intercept.ConstructorInvocation</node>
+    <node x="27.499999999999986" y="160.0">org.aopalliance.intercept.MethodInvocation</node>
+    <node x="0.0" y="320.0">org.springframework.aop.framework.ReflectiveMethodInvocation</node>
+    <node x="12.5" y="400.0">org.springframework.aop.framework.CglibAopProxy.CglibMethodInvocation</node>
+    <node x="135.0" y="80.0">org.aopalliance.intercept.Invocation</node>
+    <node x="11.5" y="240.0">org.springframework.aop.ProxyMethodInvocation</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.aopalliance.intercept.Invocation" target="org.aopalliance.intercept.Joinpoint">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.aopalliance.intercept.MethodInvocation" target="org.aopalliance.intercept.Invocation">
+      <point x="1.4210854715202004E-14" y="-15.0" />
+      <point x="96.5" y="135.0" />
+      <point x="158.0" y="135.0" />
+      <point x="-23.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.aop.framework.ReflectiveMethodInvocation" target="org.springframework.aop.ProxyMethodInvocation">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.aop.framework.CglibAopProxy.CglibMethodInvocation" target="org.springframework.aop.framework.ReflectiveMethodInvocation">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="org.aopalliance.intercept.ConstructorInvocation" target="org.aopalliance.intercept.Invocation">
+      <point x="0.0" y="-15.0" />
+      <point x="265.5" y="135.0" />
+      <point x="204.0" y="135.0" />
+      <point x="23.0" y="15.0" />
+    </edge>
+    <edge source="org.springframework.aop.ProxyMethodInvocation" target="org.aopalliance.intercept.MethodInvocation">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="96.0" y="150.0" />
+  <SelectedNodes>
+    <node>org.aopalliance.intercept.Joinpoint</node>
+  </SelectedNodes>
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
